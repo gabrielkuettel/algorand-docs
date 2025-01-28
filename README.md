@@ -25,13 +25,37 @@ Run the download script:
 npm run download
 ```
 
-This will download documentation from all sources configured in `config.ts` to their respective destination folders.
+This will download documentation from all sources configured in `config.ts` to their respective destination folders within the configured output directory.
 
 ## Configuration
 
-Sources and their destinations are configured in `config.ts`. Each source can be either a single file or a directory, and includes:
+The configuration is defined in `config.ts` and consists of:
+
+### Output Directory
+
+- `outputDir`: The parent directory where all documentation will be downloaded (e.g., './docs')
+
+### Sources
+
+Each source can be either a single file or a directory, and includes:
 
 - `type`: Either 'file' or 'directory'
 - `url`: GitHub URL to the source
-- `destination`: Local destination path
+- `destination`: Relative path within the output directory
 - `include`: Array of glob patterns for files to include
+
+Example configuration:
+
+```typescript
+const config = {
+  outputDir: './docs',
+  sources: [
+    {
+      type: 'directory',
+      url: 'https://github.com/org/repo/tree/main/docs',
+      destination: 'repo-docs',  // Will be downloaded to ./docs/repo-docs
+      include: ['**/*.md', '**/*.png']
+    }
+  ]
+}
+```
