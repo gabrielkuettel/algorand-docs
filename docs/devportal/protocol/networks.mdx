@@ -1,0 +1,149 @@
+---
+title: Networks
+description: Information about Algorand's public networks
+---
+
+Algorand has three public networks: MainNet, TestNet, and BetaNet. This section provides details about each of these networks that will help you validate the integrity of your connection to them.
+
+Each network reference, contains the following information:
+
+<table>
+  <tr>
+    <th>Version</th>
+    <td>
+      The latest protocol software version. Should match goal -v or GET /versions build version.
+    </td>
+  </tr>
+  <tr>
+    <th>Release Version</th>
+    <td>A link to the official release notes where you can view all the latest changes.</td>
+  </tr>
+  <tr>
+    <th>Genesis ID</th>
+    <td>
+      A human-readable identifier for the network. This should not be used as a unique identifier.
+    </td>
+  </tr>
+  <tr>
+    <th>Genesis Hash</th>
+    <td>
+      The unique identifier for the network, present in every transaction. Validate that your
+      transactions match the network you plan to submit them to.
+    </td>
+  </tr>
+  <tr>
+    <th>FeeSink Address</th>
+    <td>
+      Where all fees from transactions are sent. The FeeSink can only spend to the RewardsPool
+      account.
+    </td>
+  </tr>
+  <tr>
+    <th>RewardsPool Address</th>
+    <td>
+      Originally used to distribute rewards to balance-holding accounts. Currently this account is
+      not used.
+    </td>
+  </tr>
+  <tr>
+    <th>Faucet</th>
+    <td>Link to a faucet (TestNet and BetaNet only)</td>
+  </tr>
+</table>
+
+## Network Details
+
+### MainNet
+
+<table>
+  <tr>
+    <th>Version</th>
+    <td>3.27.0-stable</td>
+  </tr>
+  <tr>
+    <th>Release Version</th>
+    <td>https://github.com/algorand/go-algorand/releases/tag/v3.27.0-stable</td>
+  </tr>
+  <tr>
+    <th>Genesis ID</th>
+    <td>mainnet-v1.0</td>
+  </tr>
+  <tr>
+    <th>Genesis Hash</th>
+    <td>wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=</td>
+  </tr>
+  <tr>
+    <th>FeeSink Address</th>
+    <td>Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA</td>
+  </tr>
+  <tr>
+    <th>RewardsPool Address</th>
+    <td>737777777777777777777777777777777777777777777777777UFEJ2CI</td>
+  </tr>
+</table>
+
+### TestNet
+
+<table>
+  <tr>
+    <th>Version</th>
+    <td>3.27.0-stable</td>
+  </tr>
+  <tr>
+    <th>Release Version</th>
+    <td>https://github.com/algorand/go-algorand/releases/tag/v3.27.0-stable</td>
+  </tr>
+  <tr>
+    <th>Genesis ID</th>
+    <td>testnet-v1.0</td>
+  </tr>
+  <tr>
+    <th>Genesis Hash</th>
+    <td>SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=</td>
+  </tr>
+  <tr>
+    <th>FeeSink Address</th>
+    <td>A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE</td>
+  </tr>
+  <tr>
+    <th>RewardsPool Address</th>
+    <td>7777777777777777777777777777777777777777777777777774MSJUVU</td>
+  </tr>
+  <tr>
+    <th>Faucet</th>
+    <td>https://dispenser.testnet.aws.algodev.network/</td>
+  </tr>
+</table>
+
+### BetaNet
+
+<table>
+  <tr>
+    <th>Version</th>
+    <td>v4.0.1-beta</td>
+  </tr>
+  <tr>
+    <th>Release Version</th>
+    <td>https://github.com/algorand/go-algorand/releases/tag/v4.0.1-beta</td>
+  </tr>
+  <tr>
+    <th>Genesis ID</th>
+    <td>betanet-v1.0</td>
+  </tr>
+  <tr>
+    <th>Genesis Hash</th>
+    <td>mFgazF+2uRS1tMiL9dsj01hJGySEmPN28B/TjjvpVW0=</td>
+  </tr>
+  <tr>
+    <th>FeeSink Address</th>
+    <td>A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE</td>
+  </tr>
+  <tr>
+    <th>RewardsPool Address</th>
+    <td>7777777777777777777777777777777777777777777777777774MSJUVU</td>
+  </tr>
+  <tr>
+    <th>Faucet</th>
+    <td>https://bank.betanet.algodev.network/</td>
+  </tr>
+</table>
