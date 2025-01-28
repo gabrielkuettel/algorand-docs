@@ -1,0 +1,127 @@
+---
+title: Indexer Installation
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+The Algorand Indexer enables searching the blockchain for transactions, assets, accounts, and blocks
+using various criteria. While both V1 and V2 Indexers exist, the V1 Indexer is deprecated and can
+significantly slow down nodes. Users should use the V2 Indexer.
+
+The V2 Indexer runs as an independent process that connects to a
+[PostgreSQL](https://www.postgresql.org/) compatible database containing the ledger data. The
+Indexer populates this database by connecting to an Algorand archival node and processing all ledger
+data. Alternatively, the Indexer can connect to a PostgreSQL database that has already been
+populated by another Indexer instance. This setup allows you to have multiple reader instances
+providing [REST APIs](https://developer.algorand.org/docs/rest-apis/indexer) for searching the
+database, while a single Indexer handles loading the ledger data.
+
+The V2 Indexer is network agnostic and can connect to BetaNet, TestNet, or MainNet.
+
+The source code for the Indexer is available on [GitHub](https://github.com/algorand/indexer).
+
+For more information, see:
+
+- [Searching the Blockchain](https://developer.algorand.org/docs/get-details/indexer) feature guide
+- [REST API Indexer reference](https://developer.algorand.org/docs/rest-apis/indexer)
+- [Indexer README](https://github.com/algorand/indexer)
+
+## Indexer V2 Installation and Setup
+
+### Installation
+
+<Steps>
+
+1. Download the Indexer binaries from [GitHub](https://github.com/algorand/indexer/releases).
+
+2. Extract the binaries:
+
+   You can place the binary in any directory. These instructions use an indexer folder in the current
+   user's home directory:
+
+   ```shell showLineNumbers=false frame=none
+     mkdir ~/indexer
+     cd /path/to/download-dir
+     tar -xf <your-os-tarfile> -C ~/indexer
+     cd ~/indexer/<tarfile-name>
+   ```
+
+</Steps>
+
+### Running the Indexer
+
+The Indexer provides two main services:
+
+1.  Loading ledger data into a PostgreSQL database
+2.  Providing a REST API to search this ledger data
+
+You can configure the Indexer to point to a database loaded by another Indexer instance, and the
+database doesn't need to be on the current node. This allows for a setup where one Indexer loads the
+database while multiple Indexers share this data through their REST APIs.
+
+View all available options by running the
+[Indexer binary](https://developer.algorand.org/docs/clis/indexer/indexer/) with the `-h` flag.
+
+#### Start as a Reader
+
+To run the Indexer as a reader (without connecting to an Algorand node), use the `--postgres` or
+`-P` option with a valid PostgreSQL connection string:
+
+```shell showLineNumbers=false frame=none
+./algorand-indexer daemon --data-dir /tmp -P "host=[your-host] port=[your-port] user=[uname] password=[password] dbname=[ledgerdb] sslmode=disable" --no-algod
+```
+
+#### Start as a Data Loader
+
+To populate the PostgreSQL database, provide the Algorand Archival node connection details using
+either:
+
+- The Algorand Node data directory (`--algod`), if the node is on the same machine
+- The algod network host and port string (`--algod-net`) with the API token (`--algod-token`)
+
+:::note
+Create and start the database before launching the Indexer.
+:::
+
+The Indexer's `--data-dir` flag specifies where it writes its own data and is distinct from the
+algod data directory mentioned above.
+
+```shell showLineNumbers=false frame=none
+# Start with local data directory
+./algorand-indexer daemon --data-dir /tmp -P "host=[your-host] port=[your-port] user=[uname] password=[password] dbname=[ledgerdb] sslmode=disable" --algod=~/node/data
+
+# Start with networked Algorand node
+./algorand-indexer daemon --data-dir /tmp -P "host=[your-host] port=[your-port] user=[uname] password=[password] dbname=[ledgerdb] sslmode=disable" --algod-net="http://[your-host]:[your-port]" --algod-token="[your-api-token]"
+```
+
+:::note
+Initial database loading will take considerable time.
+:::
+
+### REST API Configuration
+
+The Indexer provides a REST API for accessing the indexed blockchain data. The API can be configured
+for both server settings and authentication.
+
+### Server Configuration
+
+- The API server defaults to port 8980
+- Use the `--server` option with a [host:port] value to specify a different address (e.g.,
+  `--server localhost:3000`)
+
+### Authentication
+
+- Set an API token using the `--token` parameter when starting the Indexer
+- If a token is set, all API clients must include this token in their requests to access the
+  endpoints
+
+[View Indexer REST Endpoint specifications here.](https://developer.algorand.org/docs/rest-apis/restendpoints/)
+
+To enable indexing on a node:
+
+1. Set the `isIndexerActive` configuration parameter to `true`
+2. Ensure the node is in archival mode
+
+:::caution
+Enabling indexing will more than double the node's disk space requirements.
+:::

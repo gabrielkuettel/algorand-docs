@@ -1,0 +1,839 @@
+---
+title: Manual Node Installation
+description: Install an Algorand node on your system
+---
+
+import { Steps, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide shows how to install and run an Algorand node on your system. It covers installation
+methods for both Linux distributions and MacOS, with Linux users having the option of package
+manager or updater script installation.
+
+## Installation Methods
+
+There are two different methods for installing Algorand nodes depending on your operating system.
+Choose the approach that works for your platform and preferences.
+
+Choose one installation method and stick with it. Mixing methods can lead to complex
+troubleshooting issues. If the package manager method is available for your Linux system, it is
+strongly recommended over the updater script method.
+
+### Package Manager Method
+
+_Supported on Debian-based (Ubuntu, Linux Mint) and Red Hat-based (Fedora, CentOS) distributions._
+
+Recommended for users on supported Linux distributions. This method provides automated updates, a
+fixed directory structure, and a pre-configured system service, simplifying maintenance.
+
+<LinkCard
+  title='Node Installation - Package Manager'
+  href='/nodes/installation/manual-installation#package-manager-installation'
+  description='Install Algorand using your system package manager'
+/>
+
+### Updater Script Method
+
+_Supported on Linux distributions and MacOS._
+
+Required for MacOS users and supported for all Linux distributions. This method allows customizable
+data directory location. However, it uses a manual update process. It works with MacOS and all Linux
+distributions, including openSUSE Leap, Manjaro, Mageia, Alpine, and Solus.
+
+<LinkCard
+  title='Node Installation - Updater Script'
+  href='/nodes/installation/manual-installation#updater-script-installation'
+  description='Install Algorand using your the updater script'
+/>
+
+## Alternative Options
+
+### Docker
+
+Official Docker images are available from [Docker Hub](https://hub.docker.com/r/algorand/algod).
+
+### Windows
+
+You can build native binaries using Rand Labs’
+[repository](https://github.com/randlabs/algorand-windows-node) or use a third-party tool like
+[FUNC](https://github.com/GalaxyPay/func).
+
+### Development
+
+If you need a private network for development, consider using
+[AlgoKit](https://developer.algorand.org/docs/get-started/algokit/) for a simpler setup. Even
+without running a node, installing Algorand software provides access to essential developer tools
+such as `msgpacktool` and `algokey`, along with other development utilities.
+
+## Hardware Requirements
+
+### Participation Nodes
+
+Participation nodes are actively involved in the Algorand consensus protocol by proposing and voting
+on blocks. They require higher network bandwidth to communicate with other nodes efficiently.
+
+- 8 vCPU
+- 16 GB RAM
+- 100 GB NVMe SSD or equivalent
+- 1 Gbps connection with low latency (< 100ms)
+
+### Non-Participation Nodes
+
+Non-participation nodes maintain a current copy of the blockchain but do not participate in
+consensus, so the hardware requirements are somewhat lower than for participation nodes.
+Non-participating nodes are useful for API endpoints and development environments.
+
+- 8 vCPU
+- 8 GB RAM
+- 100 GB NVMe SSD or equivalent
+- 100Mbps connection with low latency (< 100ms)
+
+### Archival Nodes
+
+Archival nodes store the entire history of the blockchain from genesis, making them valuable for
+applications requiring historical data access. They need significantly more storage than other node
+types.
+
+- 8 vCPU
+- 16 GB RAM
+- Storage:
+  - 3 TB SSD for blocks and catchpoints
+    ([ColdDataDir](https://developer.algorand.org/docs/run-a-node/reference/config/#algod-configuration-settings))
+  - 100 GB NVMe SSD for accounts
+    ([HotDataDir](https://developer.algorand.org/docs/run-a-node/reference/config/#algod-configuration-settings))
+- 5 TB/month egress
+- 1 Gbps connection with low latency (< 100ms)
+
+> **Info**: While directly-attached NVMe SSDs are recommended, AWS EBS gp3 volumes have proven
+> sufficient as of October 2022. Monitor performance closely and be prepared to upgrade if TPS
+> increases significantly.
+
+## Package Manager Installation
+
+The package manager installs Algorand node software in the standard system locations:
+
+- Binary files: `/usr/bin`
+- Data directory: `/var/lib/algorand`
+- KMD files: `${HOME}/.algorand/kmd-version`
+
+See [Node Artifacts](/nodes/reference/artifacts) for a complete list of installed files.
+
+:::note
+The Key Manager Daemon (KMD) is Algorand's wallet process that manages keys and signing
+operations. It is used for wallet operations through the SDKs and REST API.
+:::
+
+It is recommended to configure the environment by adding to your shell config file (`~/.bashrc` or
+`~/.zshrc`):
+
+```shell showLineNumbers=false frame=none
+export ALGORAND_DATA=/var/lib/algorand
+```
+
+This sets a permanent environment variable that tells Algorand tools where to find your node's data
+directory, eliminating the need to specify it with the `-d` flag in every command.
+
+### Installation
+
+<Tabs syncKey="systems">
+<TabItem label="Ubuntu, Linux Mint">
+   #### For Debian-Based Systems (Ubuntu, Linux Mint)
+   <Steps>
+
+1.  First, update your system and install required packages:
+
+    ```shell showLineNumbers=false frame=none
+    sudo apt-get update
+    sudo apt-get install -y gnupg2 curl software-properties-common
+    ```
+
+2.  Add Algorand’s repository and security key:
+
+    ```shell showLineNumbers=false frame=none
+    curl -o - https://releases.algorand.com/key.pub | sudo tee /etc/apt/trusted.gpg.d/algorand.asc
+    sudo add-apt-repository "deb [arch=amd64] https://releases.algorand.com/deb/ stable main"
+    sudo apt-get update
+    ```
+
+3.  Install Algorand (choose one option):
+
+    ```shell showLineNumbers=false frame=none
+    # Option A: Install Algorand with developer tools
+    sudo apt-get install -y algorand-devtools
+
+    # Option B: Install only Algorand node
+    sudo apt-get install -y algorand
+    ```
+
+   </Steps>
+
+</TabItem>
+<TabItem label="Fedora, CentOS">
+   #### For Red Hat-Based Systems (Fedora, CentOS)
+
+##### CentOS 7
+
+   <Steps>
+
+1.  Import Algorand’s repository key and set up the repository:
+
+    ```shell showLineNumbers=false frame=none
+    curl -O https://releases.algorand.com/rpm/rpm_algorand.pub
+    sudo rpmkeys --import rpm_algorand.pub
+    sudo yum install yum-utils
+    sudo yum-config-manager --add-repo https://releases.algorand.com/rpm/stable/algorand.repo
+    ```
+
+2.  Install Algorand (choose one option):
+
+    ```shell showLineNumbers=false frame=none
+    # Option A: Install Algorand with developer tools
+    sudo yum install algorand-devtools
+
+    # Option B: Install only Algorand node
+    sudo yum install algorand
+    ```
+
+   </Steps>
+
+##### Fedora or CentOS 8 Stream
+
+   <Steps>
+
+1.  Import Algorand’s repository key and set up the repository:
+
+    ```shell showLineNumbers=false frame=none
+    curl -O https://releases.algorand.com/rpm/rpm_algorand.pub
+    sudo rpmkeys --import rpm_algorand.pub
+    dnf install -y 'dnf-command(config-manager)'
+    dnf config-manager --add-repo=https://releases.algorand.com/rpm/stable/algorand.repo
+    ```
+
+2.  Install Algorand:
+
+    ```shell showLineNumbers=false frame=none
+    dnf install algorand
+    ```
+
+   </Steps>
+
+</TabItem>
+</Tabs>
+
+### Post-Installation Notes
+
+After installation, Algorand is configured as a system service and starts automatically on MainNet.
+See [switching networks](/nodes/management/switch-networks) for details on changing to another
+network.
+
+All core binaries are installed in `/usr/bin`, so you can run `algod` and `goal` commands from any
+directory. Your node's data will be stored in `/var/lib/algorand`.
+
+Since the data directory `/var/lib/algorand` is owned by the user `algorand` and the daemon `algod`
+is run as the user `algorand`, operations related to wallets and accounts (`goal account ...` and
+`goal wallet ...`) need to be run as the user `algorand`. For example, to list participation keys,
+use:
+
+```shell showLineNumbers=false frame=none
+# If $ALGORAND_DATA is set:
+sudo -u algorand -E goal account listpartkeys
+
+# If $ALGORAND_DATA is not set:
+sudo -u algorand -E goal account listpartkeys -d /var/lib/algorand
+```
+
+:::caution
+Never run `goal` as root (using `sudo` directly). This can compromise file permissions in
+`/var/lib/algorand`.
+:::
+
+Additional tools are available through separate packages:
+
+- Developer utilities through the `algorand-devtools` package
+- Extra tools like `pingpong` in the `tools_stable_linux-amd64_2.1.6.tar.gz` package
+
+### Installing the Developer Tools
+
+The `algorand-devtools` package (introduced in version 2.1.5) provides additional developer
+utilities:
+
+- `carpenter`
+- `catchupsrv`
+- `msgpacktool`
+- `tealcut`
+- `tealdbg`
+
+Installation is straightforward using your system's package manager (`apt` or `yum`). The package
+manager will handle dependencies automatically:
+
+- If Algorand is not installed, it will be installed automatically
+- If Algorand is already installed, it will be updated if needed
+
+See the
+[installation instructions](/nodes/installation/manual-installation#for-debian-based-systems-ubuntu-linux-mint)
+above for detailed installation commands.
+
+### Managing Your Node
+
+The node starts automatically after package manager installation. To control the node manually, use
+the following commands:
+
+To start your node:
+
+```shell showLineNumbers=false frame=none
+sudo systemctl start algorand
+```
+
+To stop your node:
+
+```shell showLineNumbers=false frame=none
+sudo systemctl stop algorand
+```
+
+To check your node's status:
+
+```shell showLineNumbers=false frame=none
+goal node status -d /var/lib/algorand
+```
+
+## Updater Script Installation
+
+The updater script installation requires two main directories:
+
+- Binary directory (recommended: `~/node`) - Contains Algorand executables
+- Data directory (recommended: `~/node/data`) - Stores blockchain and node data
+
+When updating, the script archives your existing installation before overwriting the binaries.
+Configure your environment by adding to your shell config file (`~/.bashrc` or `~/.zshrc`):
+
+```shell showLineNumbers=false frame=none
+export ALGORAND_DATA="$HOME/node/data"
+export PATH="$HOME/node:$PATH"
+```
+
+These settings tell Algorand tools where to find your data directory and make `goal` commands
+directly executable.
+
+<Tabs syncKey="updater-os">
+<TabItem label="MacOS" icon="apple">
+   ### MacOS Installation
+
+Verified on OSX v12.3.1 (Monterey).
+
+   <Steps>
+
+1.  Create and enter the installation directory:
+
+    ```shell showLineNumbers=false frame=none
+    mkdir ~/node
+    cd ~/node
+    ```
+
+2.  Download and prepare the updater script:
+
+    ```shell showLineNumbers=false frame=none
+    curl https://raw.githubusercontent.com/algorand/go-algorand/rel/stable/cmd/updater/update.sh -O
+    chmod 744 update.sh
+    ```
+
+3.  Run the installer:
+
+    ```shell showLineNumbers=false frame=none
+    ./update.sh -i -c stable -p ~/node -d ~/node/data -n
+    ```
+
+    For beta releases, use `-c beta` instead of `-c stable`.
+
+    The installer will download and install the latest package from S3. The `-n` flag prevents
+    automatic node startup. All binaries, including developer tools, are included in this
+    installation.
+
+4.  Configure your environment by adding to your shell config file (`~/.bashrc` or `~/.zshrc`):
+
+    These environment variables help you run `goal` commands without specifying the data directory
+    each time.
+
+    ```shell showLineNumbers=false frame=none
+    export ALGORAND_DATA="$HOME/node/data"
+    export PATH="$HOME/node:$PATH"
+    ```
+
+</Steps>
+
+### Running the Node as a macOS Service
+
+This section outlines the basic steps to install prerequisites, create a launch service (.plist), and keep your Algorand node running automatically on macOS.
+
+<Steps>
+
+1. Initial Setup tasks
+
+   1. **Install Homebrew**
+
+      Visit [Homebrew’s official site](https://brew.sh/) for installation instructions.
+
+   2. **Install bash**
+
+      ```shell showLineNumbers=false frame=none
+      brew install bash
+      ```
+
+   3. **(Optional) Install Netdata**
+
+      Netdata helps monitor system metrics in real time.
+
+      ```shell showLineNumbers=false frame=none
+      brew install netdata
+      ```
+
+   4. **Disable Sleep**
+
+      To prevent macOS from suspending your node, you can disable sleep targets:
+
+      ```shell showLineNumbers=false frame=none
+      sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+      ```
+
+2. **Creating the Managed Service**
+
+   Create a .plist file to automatically start and manage algod on macOS. Below is an example; adjust paths as necessary:
+
+   ```xml showLineNumbers=false frame=terminal
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "<http://www.apple.com/DTDs/PropertyList$>
+   <plist version="1.0">
+      <dict>
+         <key>Label</key>
+         <string>com.algorand</string>
+         <key>Program</key>
+         <string>/Users/USERNAME/node/algod</string>
+         <key>EnvironmentVariables</key>
+         <dict>
+               <key>ALGORAND_DATA</key>
+               <string>/Users/USERNAME/node/data</string>
+         </dict>
+         <key>RunAtLoad</key>
+         <true/>
+         <key>KeepAlive</key>
+         <dict>
+               <key>SuccessfulExit</key>
+               <false/>
+               <key>Crashed</key>
+               <true/>
+         </dict>
+         <key>ThrottleInterval</key>
+         <integer>5</integer>
+      </dict>
+   </plist>
+   ```
+
+   1. **Copy .plist to the Service Directory**
+
+      Place the file in `/Library/LaunchDaemons/com.algorand.plist` (system-wide) or in `~/Library/LaunchAgents/` (user-only). It's recommended to name the file as `com.algorand.plist`.
+
+   2. **Launch the service**
+
+      ```shell showLineNumbers=false frame=none
+      sudo launchctl bootstrap system `/Library/LaunchDaemons/com.algorand.plist
+      ```
+
+   3. **Confirm that the service is running by doing launchctl list and grepping for the service name algorand:**
+
+      ```shell showLineNumbers=false frame=none
+      sudo launchctl list | grep algorand
+      ```
+
+   If you need to make changes to the plist file, first run:
+
+   ```shell showLineNumbers=false frame=none
+   sudo launchctl bootout system /Library/LaunchDaemons/com.algorand.plist
+   ```
+
+   Then re-load after making changes.
+
+</Steps>
+Once complete, algod will automatically start at boot and stay running in the background under the configured .plist settings.
+
+</TabItem>
+<TabItem label="Linux" icon="linux">
+   ### Linux Installation
+
+Verified on Ubuntu, CentOS, Fedora, openSUSE Leap, Manjaro, Mageia, Alpine, and Solus. Other modern
+Linux distributions should work as well.
+
+   <Steps>
+
+1.  Create and enter the installation directory:
+
+    ```shell showLineNumbers=false frame=none
+    mkdir ~/node
+    cd ~/node
+    ```
+
+2.  Download and prepare the updater script:
+
+    ```shell showLineNumbers=false frame=none
+    wget https://raw.githubusercontent.com/algorand/go-algorand/rel/stable/cmd/updater/update.sh
+    chmod 744 update.sh
+    ```
+
+3.  Run the installer:
+
+    ```shell showLineNumbers=false frame=none
+    ./update.sh -i -c stable -p ~/node -d ~/node/data -n
+    ```
+
+    The installer will download and install the latest package from S3. The `-n` flag prevents
+    automatic node startup. All binaries, including developer tools, are included in this
+    installation.
+
+4.  Configure your environment by adding to your shell config file (`~/.bashrc` or `~/.zshrc`):
+
+    ```shell showLineNumbers=false frame=none
+    export ALGORAND_DATA="$HOME/node/data"
+    export PATH="$HOME/node:$PATH"
+    ```
+
+    These environment variables help you run `goal` commands without specifying the data directory
+    each time.
+
+   </Steps>
+
+</TabItem>
+</Tabs>
+
+### Post-Installation Notes
+
+After installation, your node must be started manually. Your data will be stored in the directory
+you specified during installation (recommended: `~/node/data`).
+
+Unlike package manager installations where binaries are in `/usr/bin`, your binaries will be in your
+specified installation directory (recommended: `~/node`). Make sure you've set up your environment
+variables as instructed above to run commands from any directory.
+
+The installation includes all binaries, including developer tools - there is no separate devtools
+package. This differs from package manager installations which separate these packages.
+
+### Managing Your Node
+
+Unlike package manager installations, nodes installed via the updater script must be started
+manually. To control the node manually, use the following commands:
+
+To start your node:
+
+```shell showLineNumbers=false frame=none
+goal node start
+```
+
+To stop your node:
+
+```shell showLineNumbers=false frame=none
+goal node stop
+```
+
+To verify your node is running:
+
+```shell showLineNumbers=false frame=none
+pgrep algod
+```
+
+### Setting Up systemd Service
+
+When installing using the updater script, several shell scripts are bundled in the tarball to help
+with running `algod`. One of these is the `systemd-setup.sh` script to create a system service.
+
+Usage: `./systemd-setup.sh username group [bindir]`
+
+#### Installation
+
+<Steps>
+
+1. Create the service with root privileges:
+
+   ```shell showLineNumbers=false frame=none
+   sudo ./systemd-setup.sh algorand algorand
+   ```
+
+   This creates `/lib/systemd/system/algorand@.service` using the included template
+   (`algorand@.service.template`). The template file includes helpful information at its top and is
+   worth reviewing.
+
+2. Specify binary location (optional):
+
+   ```ini
+   [Service]
+   ExecStart=@@BINDIR@@/algod -d %I
+   User=@@USER@@
+   Group=@@GROUP@@
+   ```
+
+   The service template above shows how `systemd` locates your `algod` binary. By default, it uses
+   the current working directory, but you can specify a different location using the `bindir`
+   parameter, which must be an absolute path:
+
+   ```shell showLineNumbers=false frame=none
+   sudo ./systemd-setup.sh algorand algorand /path/to/binary/directory
+   ```
+
+3. Register the service:
+
+   ```shell showLineNumbers=false frame=none
+   sudo systemctl daemon-reload
+   ```
+
+   This command makes `systemd` aware that the service is present on the system. You should also run
+   this command if you make any changes to the service after installation.
+
+4. Start the service:
+
+   ```shell showLineNumbers=false frame=none
+   sudo systemctl start algorand@$(systemd-escape $ALGORAND_DATA)
+   ```
+
+   This command starts the Algorand service using your data directory path (specified by
+   `$ALGORAND_DATA`). The `systemd-escape` command formats the path to be compatible with systemd.
+
+   To configure the service to start automatically when your system boots:
+
+   ```shell showLineNumbers=false frame=none
+   sudo systemctl enable algorand@$(systemd-escape $ALGORAND_DATA)
+   ```
+
+</Steps>
+
+## Synchronizing Your Node
+
+After starting your node for the first time, it needs to synchronize with the network by downloading
+and validating the blockchain. There are two methods for this:
+
+### Standard Synchronization
+
+When using standard synchronization, your node downloads and validates every block since genesis.
+This process can take several hours or even days, depending on your hardware and network connection.
+
+To check your node's sync status:
+
+```shell showLineNumbers=false frame=none
+goal node status
+```
+
+A fully synchronized node will show a "Sync Time" of 0.0s, like this:
+
+```shell showLineNumbers=false frame=none
+Last committed block: 125064
+Time since last block: 3.1s
+Sync Time: 0.0s
+Last consensus protocol: https://github.com/algorandfoundation/specs/tree/5615adc36bad610c7f165fa2967f4ecfa75125f0
+Next consensus protocol: https://github.com/algorandfoundation/specs/tree/5615adc36bad610c7f165fa2967f4ecfa75125f0
+Round for next consensus protocol: 125065
+Next consensus protocol supported: true
+Genesis ID: testnet-v1.0
+Genesis hash: SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=
+```
+
+### Fast Catchup
+
+Fast catchup significantly accelerates the synchronization process by using catchpoint snapshots.
+Instead of processing every block, your node downloads a recent snapshot of the blockchain state and
+then synchronizes only the most recent blocks.
+
+However, keep in mind that fast-catchup requires trusting the entity providing the catchpoint. For
+maximum security, either use a catchpoint from your own archival node or synchronize from genesis.
+
+:::caution
+Do not use fast-catchup on archival or relay nodes. If you accidentally do so, you must reset your
+node and start from scratch.
+:::
+
+#### Latest Catchpoints
+
+Get the most recent catchpoint for your network:
+
+- [MainNet Catchpoint](https://algorand-catchpoints.s3.us-east-2.amazonaws.com/channel/mainnet/latest.catchpoint)
+- [TestNet Catchpoint](https://algorand-catchpoints.s3.us-east-2.amazonaws.com/channel/testnet/latest.catchpoint)
+- [BetaNet Catchpoint](https://algorand-catchpoints.s3.us-east-2.amazonaws.com/channel/betanet/latest.catchpoint)
+
+#### Fast Catchup Process
+
+<Steps>
+
+1. Start your node if it isn't running:
+
+   ```shell showLineNumbers=false frame=none
+   goal node start
+   ```
+
+2. Use the catchup command with your network's current catchpoint from from the catchpoint URL:
+
+   ```shell showLineNumbers=false frame=none
+   goal node catchup 4420000#Q7T2RRTDIRTYESIXKAAFJYFQWG4A3WRA3JIUZVCJ3F4AQ2G2HZRA
+   ```
+
+3. Check your node's sync status:
+
+   ```shell showLineNumbers=false frame=none
+   goal node status -w 1000
+   ```
+
+   The `-w` flag updates the status every 1000 milliseconds (1 second). Press Ctrl/Cmd+C to stop
+   monitoring. During catchup, you'll see additional status lines showing progress:
+
+   ```shell showLineNumbers=false frame=none
+   Catchpoint: 4420000#Q7T2RRTDIRTYESIXKAAFJYFQWG4A3WRA3JIUZVCJ3F4AQ2G2HZRA
+   Catchpoint total accounts: 1146
+   Catchpoint accounts processed: 1146
+   Catchpoint total blocks: 1000
+   Catchpoint downloaded blocks: 81
+   ```
+
+   Your node is fully synchronized when these catchpoint lines disappear and "Sync Time" shows 0.0s.
+
+</Steps>
+
+#### Troubleshooting Fast Catchup
+
+If fast-catchup fails, verify:
+
+- Your node is not configured as archival or relay
+- You're running the latest Algorand software (goal version -v)
+- The catchpoint matches your network's Genesis ID
+- Your hardware meets the requirements
+- Your system has sufficient memory
+- You're using an SSD (not HDD) for storage
+
+If you accidentally used fast-catchup on an archival node:
+
+<Steps>
+
+1. Stop the node
+
+   ```shell showLineNumbers=false frame=none
+     goal node stop
+   ```
+
+2. Remove all files in the data directory except:
+
+   - Configuration files (\*.json)
+   - Genesis files (genesis\*)
+
+3. Restart the node
+
+   ```shell showLineNumbers=false frame=none
+     goal node start
+   ```
+
+</Steps>
+
+## Enabling Telemetry
+
+Algorand nodes include telemetry instrumentation that can provide insights into the software's
+performance and usage. This data helps Algorand Inc. improve the software and identify issues.
+Telemetry is disabled by default - no data will be shared unless you explicitly enable it.
+
+### Managing Telemetry
+
+#### Enable Telemetry
+
+You can enable telemetry with or without a custom hostname. Using a custom hostname helps identify
+your node in telemetry data.
+
+To enable with a custom hostname:
+
+```shell showLineNumbers=false frame=none
+# For updater script installations:
+diagcfg telemetry name -n <hostname>
+
+# For package manager installations:
+sudo -u algorand -H -E diagcfg telemetry name -n <hostname>
+```
+
+Replace `<hostname>` with your desired identifier (e.g., 'MainNetRelay1' or 'TestNetNode2').
+
+To enable without a custom hostname:
+
+```shell showLineNumbers=false frame=none
+# For updater script installations:
+diagcfg telemetry enable
+
+# For package manager installations:
+sudo -u algorand -H -E diagcfg telemetry enable
+```
+
+After enabling or disabling telemetry, restart your node for the changes to take effect.
+
+#### Disable Telemetry
+
+To disable telemetry:
+
+```shell showLineNumbers=false frame=none
+# For updater script installations:
+diagcfg telemetry disable
+
+# For package manager installations:
+sudo -u algorand -H -E diagcfg telemetry disable
+```
+
+### Verifying Telemetry Status
+
+#### Check Configuration
+
+To verify your telemetry settings:
+
+```shell showLineNumbers=false frame=none
+# For updater script installations:
+diagcfg telemetry
+
+# For package manager installations:
+sudo -u algorand -H -E diagcfg telemetry
+```
+
+#### Check Connection
+
+To verify if your node is connected to the telemetry server:
+
+```shell showLineNumbers=false frame=none
+sudo netstat -an | grep :9243
+```
+
+If telemetry is enabled and working, you'll see output like:
+
+```text
+tcp        0      0 xxx.xxx.xxx.xxx:yyyyy        18.214.74.184:9243      ESTABLISHED
+```
+
+If telemetry is disabled or not working, this command will produce no output.
+
+### Technical Details
+
+- Telemetry configuration is stored in `~/.algorand/logging.config` (or `data/logging.config` if
+  `-d data` was specified)
+- For package manager installations, always run telemetry commands as the `algorand` user with
+  `-H -E` flags
+- Never run telemetry commands as root (don't use `sudo` directly with `diagcfg`)
+- The `-H` flag ensures the correct home directory is used for the `algorand` user
+
+:::caution
+Running `diagcfg` as root will only affect nodes run as root, which is not recommended for
+security reasons.
+:::
+
+### Third-Party Telemetry Services
+
+#### Nodely Telemetry Service
+
+In addition to Algorand's default telemetry service, you can send your node's telemetry data to
+Nodely's free third-party service. Nodely provides additional features including:
+
+- Health scoring based on multiple metrics
+- Voting performance monitoring
+- Network performance analytics
+- Synchronization monitoring
+- Public leaderboards
+- Global node comparison dashboard
+
+For more details about Nodely's telemetry service, see their
+[telemetry documentation](https://nodely.io/docs/telemetry/quickstart/).
+
+:::note
+Nodely's telemetry service is designed for MainNet nodes including validators, API nodes, and P2P
+nodes/relays. Do not use it for the Relay/Archiver Running Program.
+:::
