@@ -11,7 +11,7 @@ A utility script to download and sync documentation from various Algorand GitHub
    npm install
    ```
 
-3. Create a `.env` file in the root directory and add your GitHub token (required to avoid rate limits):
+3. Create a `.env` file in the root directory and add your GitHub token with default permissions (required to avoid rate limits):
 
    ```plaintext
    GITHUB_TOKEN=your_github_token_here
@@ -53,9 +53,9 @@ const config = {
     {
       type: 'directory',
       url: 'https://github.com/org/repo/tree/main/docs',
-      destination: 'repo-docs',  // Will be downloaded to ./docs/repo-docs
-      include: ['**/*.md', '**/*.png']
-    }
-  ]
-}
+      destination: 'repo-docs', // Will be downloaded to ./docs/repo-docs
+      include: ['**/*.md', '**/*.png'],
+    },
+  ],
+};
 ```
