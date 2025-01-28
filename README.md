@@ -8,8 +8,7 @@ A utility script to download and sync documentation from various Algorand GitHub
 2. Install dependencies:
 
    ```bash
-   npm install
-   cd docs-viewer && npm install
+   npm run install:all
    ```
 
 3. Create a `.env` file in the root directory and add your GitHub token with default permissions (required to avoid rate limits):

@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "install:all": "npm install && cd docs-viewer && npm install && cd ..",
     "download": "tsx download-docs.ts",
     "view": "cd docs-viewer && npm run dev",
     "check-types": "tsc --noEmit"
