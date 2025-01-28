@@ -22,9 +22,15 @@ class DownloadStats {
   private skipped: string[] = [];
   private failed: string[] = [];
 
-  addDownloaded(file: string) { this.downloaded.push(file); }
-  addSkipped(file: string) { this.skipped.push(file); }
-  addFailed(file: string) { this.failed.push(file); }
+  addDownloaded(file: string) {
+    this.downloaded.push(file);
+  }
+  addSkipped(file: string) {
+    this.skipped.push(file);
+  }
+  addFailed(file: string) {
+    this.failed.push(file);
+  }
 
   printSummary() {
     console.log('\n=== Download Summary ===');
@@ -34,14 +40,14 @@ class DownloadStats {
 
     if (this.failed.length > 0) {
       console.log('\nFailed files:');
-      this.failed.forEach(file => console.log(`- ${file}`));
+      this.failed.forEach((file) => console.log(`- ${file}`));
     }
   }
 }
 
 function shouldInclude(filePath: string, includePatterns: string[]): boolean {
   const normalizedPath = filePath.replace(/\\/g, '/');
-  return includePatterns.some(pattern => minimatch(normalizedPath, pattern));
+  return includePatterns.some((pattern) => minimatch(normalizedPath, pattern));
 }
 
 function getGithubApiUrl(githubUrl: string): string {
@@ -49,8 +55,10 @@ function getGithubApiUrl(githubUrl: string): string {
     .replace('https://github.com/', '')
     .split('/')
     .filter(Boolean);
-    
-  return `https://api.github.com/repos/${owner}/${repo}/contents/${pathParts.join('/')}?ref=${branch}`;
+
+  return `https://api.github.com/repos/${owner}/${repo}/contents/${pathParts.join(
+    '/'
+  )}?ref=${branch}`;
 }
 
 function getRawFileUrl(githubUrl: string): string {
@@ -59,9 +67,14 @@ function getRawFileUrl(githubUrl: string): string {
     .replace('/blob/', '/');
 }
 
-async function downloadFile(url: string, destination: string, includePatterns: string[], stats: DownloadStats): Promise<void> {
+async function downloadFile(
+  url: string,
+  destination: string,
+  includePatterns: string[],
+  stats: DownloadStats
+): Promise<void> {
   const fileName = path.basename(url);
-  
+
   if (!shouldInclude(fileName, includePatterns)) {
     console.log(`Skipping: ${fileName}`);
     stats.addSkipped(fileName);
@@ -69,47 +82,61 @@ async function downloadFile(url: string, destination: string, includePatterns: s
   }
 
   const filePath = path.join(destination, fileName);
-  const fileExists = await fs.access(filePath).then(() => true).catch(() => false);
-  
+  const fileExists = await fs
+    .access(filePath)
+    .then(() => true)
+    .catch(() => false);
+
   console.log(`${fileExists ? 'Updating' : 'Downloading'}: ${fileName}`);
-  
+
   try {
-    const response = await axios.get(getRawFileUrl(url), { 
+    const response = await axios.get(getRawFileUrl(url), {
       responseType: 'arraybuffer',
-      headers 
+      headers,
     });
     await fs.mkdir(destination, { recursive: true });
     await fs.writeFile(filePath, response.data);
     stats.addDownloaded(fileName);
   } catch (error) {
-    console.error(`Failed to download ${fileName}:`, error instanceof Error ? error.message : String(error));
+    console.error(
+      `Failed to download ${fileName}:`,
+      error instanceof Error ? error.message : String(error)
+    );
     stats.addFailed(fileName);
   }
 }
 
-async function downloadDirectory(url: string, destination: string, includePatterns: string[], stats: DownloadStats): Promise<void> {
+async function downloadDirectory(
+  url: string,
+  destination: string,
+  includePatterns: string[],
+  stats: DownloadStats
+): Promise<void> {
   try {
     const response = await axios.get(getGithubApiUrl(url), { headers });
     await fs.mkdir(destination, { recursive: true });
 
     const downloadPromises = response.data.map(async (item: GithubItem) => {
       const itemDestination = path.join(destination, item.name);
-      
+
       if (item.type === 'file') {
-        if (shouldInclude(item.path, includePatterns)) {
-          return downloadFile(item.html_url, destination, includePatterns, stats);
-        } else {
-          console.log(`Skipping: ${item.path}`);
-          stats.addSkipped(item.path);
-        }
+        return downloadFile(item.html_url, destination, includePatterns, stats);
       } else if (item.type === 'dir') {
-        return downloadDirectory(item.html_url, itemDestination, includePatterns, stats);
+        return downloadDirectory(
+          item.html_url,
+          itemDestination,
+          includePatterns,
+          stats
+        );
       }
     });
 
     await Promise.all(downloadPromises);
   } catch (error) {
-    console.error(`Failed to process ${url}:`, error instanceof Error ? error.message : String(error));
+    console.error(
+      `Failed to process ${url}:`,
+      error instanceof Error ? error.message : String(error)
+    );
   }
 }
 
@@ -118,20 +145,28 @@ async function main() {
     const stats = new DownloadStats();
     const sourcePromises = config.sources.map(async (source) => {
       console.log(`\nProcessing: ${source.url}`);
-      
+
       const fullDestination = path.join(config.outputDir, source.destination);
-      
+
       if (source.type === 'file') {
         return downloadFile(source.url, fullDestination, source.include, stats);
       } else {
-        return downloadDirectory(source.url, fullDestination, source.include, stats);
+        return downloadDirectory(
+          source.url,
+          fullDestination,
+          source.include,
+          stats
+        );
       }
     });
 
     await Promise.all(sourcePromises);
     stats.printSummary();
   } catch (error) {
-    console.error('Error:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error:',
+      error instanceof Error ? error.message : String(error)
+    );
   }
 }
 
