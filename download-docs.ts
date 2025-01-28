@@ -119,10 +119,12 @@ async function main() {
     const sourcePromises = config.sources.map(async (source) => {
       console.log(`\nProcessing: ${source.url}`);
       
+      const fullDestination = path.join(config.outputDir, source.destination);
+      
       if (source.type === 'file') {
-        return downloadFile(source.url, source.destination, source.include, stats);
+        return downloadFile(source.url, fullDestination, source.include, stats);
       } else {
-        return downloadDirectory(source.url, source.destination, source.include, stats);
+        return downloadDirectory(source.url, fullDestination, source.include, stats);
       }
     });
 
