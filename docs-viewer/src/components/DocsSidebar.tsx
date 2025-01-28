@@ -99,10 +99,17 @@ export default function DocsSidebar({ docs }: DocsSidebarProps) {
 
   return (
     <nav className="py-4">
+      <div className="mb-4 px-2">
+        <Link
+          href="/"
+          className="text-gray-700 hover:text-blue-600 font-medium flex items-center"
+        >
+          Home
+        </Link>
+      </div>
       <ul className="space-y-1">
         {Object.values(docTree.children)
           .sort((a, b) => {
-            // Directories first, then files
             if (a.isFile !== b.isFile) return a.isFile ? 1 : -1;
             return a.name.localeCompare(b.name);
           })
