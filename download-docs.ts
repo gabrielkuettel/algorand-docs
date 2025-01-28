@@ -51,15 +51,17 @@ function shouldInclude(filePath: string, includePatterns: string[]): boolean {
   return includePatterns.some((pattern) => minimatch(normalizedPath, pattern));
 }
 
-function getGithubApiUrl(githubUrl: string): string {
-  const [owner, repo, , branch, ...pathParts] = githubUrl
-    .replace('https://github.com/', '')
-    .split('/')
-    .filter(Boolean);
+function getGithubApiUrl(url: string): string {
+  // Convert GitHub tree URL to API URL
+  // Example: https://github.com/owner/repo/tree/branch/path
+  //      to: https://api.github.com/repos/owner/repo/contents/path?ref=branch
+  const match = url.match(/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+)/);
+  if (!match) {
+    throw new Error(`Invalid GitHub URL: ${url}`);
+  }
 
-  return `https://api.github.com/repos/${owner}/${repo}/contents/${pathParts.join(
-    '/'
-  )}?ref=${branch}`;
+  const [, owner, repo, branch, path] = match;
+  return `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
 }
 
 function getRawFileUrl(githubUrl: string): string {
