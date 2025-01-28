@@ -9,6 +9,7 @@ A utility script to download and sync documentation from various Algorand GitHub
 
    ```bash
    npm install
+   cd docs-viewer && npm install
    ```
 
 3. Create a `.env` file in the root directory and add your GitHub token with default permissions (required to avoid rate limits):
@@ -25,15 +26,19 @@ Run the download script:
 npm run download
 ```
 
-This will download documentation from all sources configured in `config.ts` to their respective destination folders within the configured output directory.
+This will download documentation from all sources configured in `config.ts` to their respective destination folders.
+
+To view the documentation in a browser:
+
+```bash
+npm run view
+```
+
+This will start a local web server at http://localhost:3000 where you can browse the downloaded documentation.
 
 ## Configuration
 
 The configuration is defined in `config.ts` and consists of:
-
-### Output Directory
-
-- `outputDir`: The parent directory where all documentation will be downloaded (e.g., './docs')
 
 ### Sources
 
@@ -41,14 +46,13 @@ Each source can be either a single file or a directory, and includes:
 
 - `type`: Either 'file' or 'directory'
 - `url`: GitHub URL to the source
-- `destination`: Relative path within the output directory
+- `destination`: Relative path within the docs directory
 - `include`: Array of glob patterns for files to include
 
 Example configuration:
 
 ```typescript
 const config = {
-  outputDir: './docs',
   sources: [
     {
       type: 'directory',

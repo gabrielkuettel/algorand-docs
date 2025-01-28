@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "download": "tsx download-docs.ts"
+    "download": "tsx download-docs.ts",
+    "view": "cd docs-viewer && npm run dev",
+    "check-types": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

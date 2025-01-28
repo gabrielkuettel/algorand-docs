@@ -8,7 +8,6 @@ interface Source {
 }
 
 interface Config {
-  outputDir: string;
   sources: Source[];
 }
 
@@ -21,7 +20,6 @@ const defaultIncludes = [
 ];
 
 const config: Config = {
-  outputDir: './docs',
   sources: [
     // Dev Portal - AF Docs
     {

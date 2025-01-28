@@ -7,6 +7,7 @@ import path from 'path';
 import { minimatch } from 'minimatch';
 import config from './config';
 
+const OUTPUT_DIR = './docs';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const headers = GITHUB_TOKEN ? { Authorization: `token ${GITHUB_TOKEN}` } : {};
 
@@ -146,7 +147,7 @@ async function main() {
     const sourcePromises = config.sources.map(async (source) => {
       console.log(`\nProcessing: ${source.url}`);
 
-      const fullDestination = path.join(config.outputDir, source.destination);
+      const fullDestination = path.join(OUTPUT_DIR, source.destination);
 
       if (source.type === 'file') {
         return downloadFile(source.url, fullDestination, source.include, stats);
