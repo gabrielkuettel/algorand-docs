@@ -91,6 +91,13 @@ const config: Config = {
       destination: "puya",
       include: defaultIncludes,
     },
+    // Puya TypeScript Examples
+    {
+      type: "directory",
+      url: "https://github.com/algorandfoundation/puya-ts/tree/main/examples",
+      destination: "puya-ts-examples",
+      include: [...defaultIncludes, "**/*.ts"],
+    },
     // ARCs
     {
       type: "directory",
