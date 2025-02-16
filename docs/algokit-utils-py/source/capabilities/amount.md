@@ -2,7 +2,7 @@
 
 Algo amount handling is one of the core capabilities provided by AlgoKit Utils. It allows you to reliably and tersely specify amounts of microAlgo and Algo and safely convert between them.
 
-Any AlgoKit Utils function that needs an Algo amount will take an `AlgoAmount` object, which ensures that there is never any confusion about what value is being passed around. Whenever an AlgoKit Utils function calls into an underlying algosdk function, or if you need to take an `AlgoAmount` and pass it into an underlying algosdk function (per the {ref}`modularity principle <index:core-principle>`) you can safely and explicitly convert to microAlgo or Algo.
+Any AlgoKit Utils function that needs an Algo amount will take an `AlgoAmount` object, which ensures that there is never any confusion about what value is being passed around. Whenever an AlgoKit Utils function calls into an underlying algosdk function, or if you need to take an `AlgoAmount` and pass it into an underlying algosdk function (per the {ref}`modularity principle <core-principles>`) you can safely and explicitly convert to microAlgo or Algo.
 
 To see some usage examples check out the automated tests. Alternatively, you can see the reference documentation for `AlgoAmount`.
 
@@ -21,18 +21,18 @@ from algokit_utils import AlgoAmount
 There are a few ways to create an `AlgoAmount`:
 
 - Algo
-  - Constructor: `AlgoAmount({"algo": 10})` or `AlgoAmount({"algos": 10})`
-  - Static helper: `AlgoAmount.from_algo(10)` or `AlgoAmount.from_algos(10)`
+  - Constructor: `AlgoAmount(algo=10)`
+  - Static helper: `AlgoAmount.from_algo(10)`
 - microAlgo
-  - Constructor: `AlgoAmount({"microAlgo": 10_000})` or `AlgoAmount({"microAlgos": 10_000})`
-  - Static helper: `AlgoAmount.from_micro_algo(10_000)` or `AlgoAmount.from_micro_algos(10_000)`
+  - Constructor: `AlgoAmount(micro_algo=10_000)`
+  - Static helper: `AlgoAmount.from_micro_algo(10_000)`
 
 ### Extracting a value from `AlgoAmount`
 
 The `AlgoAmount` class has properties to return Algo and microAlgo:
 
-- `amount.algo` or `amount.algos` - Returns the value in Algo as a python `Decimal` object
-- `amount.micro_algo` or `amount.micro_algos` - Returns the value in microAlgo as an integer
+- `amount.algo` - Returns the value in Algo as a python `Decimal` object
+- `amount.micro_algo` - Returns the value in microAlgo as an integer
 
 `AlgoAmount` will coerce to an integer automatically (in microAlgo) when using `int(amount)`, which allows you to use `AlgoAmount` objects in comparison operations such as `<` and `>=` etc.
 
@@ -49,7 +49,7 @@ The `AlgoAmount` class supports arithmetic operations:
 Example:
 
 ```python
-amount1 = AlgoAmount({"algo": 1})
-amount2 = AlgoAmount({"microAlgo": 500_000})
+amount1 = AlgoAmount(algo=1)
+amount2 = AlgoAmount(micro_algo=500_000)
 total = amount1 + amount2  # Results in 1.5 Algo
 ```

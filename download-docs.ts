@@ -1,19 +1,19 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
-import axios from 'axios';
-import fs from 'fs/promises';
-import path from 'path';
-import { minimatch } from 'minimatch';
-import config from './config';
+import axios from "axios";
+import fs from "fs/promises";
+import path from "path";
+import { minimatch } from "minimatch";
+import config from "./config";
 
-const OUTPUT_DIR = './docs';
+const OUTPUT_DIR = "./docs";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const headers = GITHUB_TOKEN ? { Authorization: `token ${GITHUB_TOKEN}` } : {};
 
 interface GithubItem {
   name: string;
-  type: 'file' | 'dir';
+  type: "file" | "dir";
   path: string;
   html_url: string;
 }
@@ -34,40 +34,55 @@ class DownloadStats {
   }
 
   printSummary() {
-    console.log('\n=== Download Summary ===');
+    console.log("\n=== Download Summary ===");
     console.log(`✅ Successfully downloaded: ${this.downloaded.length} files`);
     console.log(`⏭️  Skipped: ${this.skipped.length} files`);
     console.log(`❌ Failed: ${this.failed.length} files`);
 
     if (this.failed.length > 0) {
-      console.log('\nFailed files:');
+      console.log("\nFailed files:");
       this.failed.forEach((file) => console.log(`- ${file}`));
     }
   }
 }
 
 function shouldInclude(filePath: string, includePatterns: string[]): boolean {
-  const normalizedPath = filePath.replace(/\\/g, '/');
+  const normalizedPath = filePath.replace(/\\/g, "/");
   return includePatterns.some((pattern) => minimatch(normalizedPath, pattern));
 }
 
 function getGithubApiUrl(url: string): string {
-  // Convert GitHub tree URL to API URL
-  // Example: https://github.com/owner/repo/tree/branch/path
-  //      to: https://api.github.com/repos/owner/repo/contents/path?ref=branch
-  const match = url.match(/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+)/);
-  if (!match) {
-    throw new Error(`Invalid GitHub URL: ${url}`);
+  console.log("Converting URL:", url);
+  // Try simple branch pattern first
+  const simpleMatch = url.match(
+    /github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+)/
+  );
+  if (simpleMatch) {
+    return constructApiUrl(simpleMatch);
   }
 
+  // Try complex branch pattern if simple one fails
+  const complexMatch = url.match(
+    /github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+\/[^/]+)\/(.+)/
+  );
+  if (complexMatch) {
+    return constructApiUrl(complexMatch);
+  }
+
+  throw new Error(`Invalid GitHub URL: ${url}`);
+}
+
+function constructApiUrl(match: RegExpMatchArray): string {
   const [, owner, repo, branch, path] = match;
-  return `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+  console.log("Converted to API URL:", apiUrl);
+  return apiUrl;
 }
 
 function getRawFileUrl(githubUrl: string): string {
   return githubUrl
-    .replace('github.com', 'raw.githubusercontent.com')
-    .replace('/blob/', '/');
+    .replace("github.com", "raw.githubusercontent.com")
+    .replace("/blob/", "/");
 }
 
 async function downloadFile(
@@ -90,11 +105,11 @@ async function downloadFile(
     .then(() => true)
     .catch(() => false);
 
-  console.log(`${fileExists ? 'Updating' : 'Downloading'}: ${fileName}`);
+  console.log(`${fileExists ? "Updating" : "Downloading"}: ${fileName}`);
 
   try {
     const response = await axios.get(getRawFileUrl(url), {
-      responseType: 'arraybuffer',
+      responseType: "arraybuffer",
       headers,
     });
     await fs.mkdir(destination, { recursive: true });
@@ -122,9 +137,9 @@ async function downloadDirectory(
     const downloadPromises = response.data.map(async (item: GithubItem) => {
       const itemDestination = path.join(destination, item.name);
 
-      if (item.type === 'file') {
+      if (item.type === "file") {
         return downloadFile(item.html_url, destination, includePatterns, stats);
-      } else if (item.type === 'dir') {
+      } else if (item.type === "dir") {
         return downloadDirectory(
           item.html_url,
           itemDestination,
@@ -151,7 +166,7 @@ async function main() {
 
       const fullDestination = path.join(OUTPUT_DIR, source.destination);
 
-      if (source.type === 'file') {
+      if (source.type === "file") {
         return downloadFile(source.url, fullDestination, source.include, stats);
       } else {
         return downloadDirectory(
@@ -167,7 +182,7 @@ async function main() {
     stats.printSummary();
   } catch (error) {
     console.error(
-      'Error:',
+      "Error:",
       error instanceof Error ? error.message : String(error)
     );
   }

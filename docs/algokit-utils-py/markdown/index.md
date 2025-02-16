@@ -63,6 +63,7 @@ If you prefer TypeScript there’s an equivalent [TypeScript utility library](ht
   * [Network information](capabilities/client.md#network-information)
 * [Debugger](capabilities/debugging.md)
   * [Configuration](capabilities/debugging.md#configuration)
+  * [`AlgoKitLogger`](capabilities/debugging.md#algokitlogger)
   * [Debugging Utilities](capabilities/debugging.md#debugging-utilities)
 * [TestNet Dispenser Client](capabilities/dispenser-client.md)
   * [Creating a Dispenser Client](capabilities/dispenser-client.md#creating-a-dispenser-client)
@@ -98,11 +99,7 @@ If you prefer TypeScript there’s an equivalent [TypeScript utility library](ht
   * [Best Practices](v3-migration-guide.md#best-practices)
   * [Troubleshooting](v3-migration-guide.md#troubleshooting)
 * [API Reference](autoapi/index.md)
-  * [composer](autoapi/composer/index.md)
   * [algokit_utils](autoapi/algokit_utils/index.md)
-  * [client_manager](autoapi/client_manager/index.md)
-  * [algorand_client](autoapi/algorand_client/index.md)
-  * [account_manager](autoapi/account_manager/index.md)
 
 <a id="core-principles"></a>
 
@@ -180,7 +177,7 @@ The AlgoKit Utils configuration singleton can be updated using `config.configure
 
 ## Logging
 
-AlgoKit has an in-built logging abstraction through the [`AlgoKitLogger`]() class that provides standardized logging capabilities. The logger is accessible through the `config.logger` property and provides various logging levels.
+AlgoKit has an in-built logging abstraction through the [`algokit_utils.config.AlgoKitLogger`](autoapi/algokit_utils/config/index.md#algokit_utils.config.AlgoKitLogger) class that provides standardized logging capabilities. The logger is accessible through the `config.logger` property and provides various logging levels.
 
 Each method supports optional suppression of output using the `suppress_log` parameter.
 
@@ -195,7 +192,7 @@ config.configure(debug=True)
 
 To retrieve the current debug state you can use `debug` property.
 
-This will turn on things like automatic tracing, more verbose logging and [advanced debugging](). It’s likely this option will result in extra HTTP calls to algod os worth being careful when it’s turned on.
+This will turn on things like automatic tracing, more verbose logging and [advanced debugging](capabilities/debugging.md). It’s likely this option will result in extra HTTP calls to algod and it’s worth being careful when it’s turned on.
 
 <a id="capabilities"></a>
 
@@ -222,4 +219,4 @@ The library helps you interact with and develop against the Algorand blockchain 
 
 # Reference documentation
 
-For detailed API documentation, see the [auto-generated reference documentation]().
+For detailed API documentation, see the [`algokit_utils`](autoapi/algokit_utils/index.md#module-algokit_utils)

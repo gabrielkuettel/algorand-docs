@@ -24,7 +24,7 @@ const config: Config = {
     // Python Contract Examples
     {
       type: "directory",
-      url: "https://github.com/algorandfoundation/devportal-code-examples/tree/main/projects/python-contract-examples/smart_contracts",
+      url: "https://github.com/algorandfoundation/devportal-code-examples/tree/main/projects/python-examples/smart_contracts",
       destination: "python-contract-examples",
       include: [...defaultIncludes, "**/*.py"],
     },
@@ -97,6 +97,20 @@ const config: Config = {
       url: "https://github.com/algorandfoundation/puya-ts/tree/main/examples",
       destination: "puya-ts-examples",
       include: [...defaultIncludes, "**/*.ts"],
+    },
+    // Puya TypeScript Approval Tests
+    {
+      type: "directory",
+      url: "https://github.com/algorandfoundation/puya-ts/tree/main/tests/approvals",
+      destination: "puya-ts-approvals",
+      include: [...defaultIncludes, "**/*.ts"],
+    },
+    // Puya TypeScript Language Guide
+    {
+      type: "directory",
+      url: "https://github.com/algorandfoundation/puya-ts/tree/docs/language-guide/docs",
+      destination: "puya-ts-language-guide",
+      include: defaultIncludes,
     },
     // ARCs
     {
